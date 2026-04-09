@@ -543,7 +543,7 @@ function Footer() {
           </div>
         </div>
         <div style={{ borderTop: `1px solid ${C.navyLight}`, paddingTop: 24, textAlign: "center" }}>
-          <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: C.muted, margin: 0 }}>© 2026 The Joy of Lending. All rights reserved. NMLS# 000000</p>
+          <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: C.muted, margin: 0 }}>© 2026 The Joy of Lending. All rights reserved. NMLS #1624602</p>
         </div>
       </div>
     </footer>
