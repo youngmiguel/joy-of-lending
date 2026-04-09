@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { Routes, Route, Link, useNavigate, useLocation, useParams } from "react-router-dom";
 
 const C = {
   navy: "#0A1628", navyMid: "#132240", navyLight: "#1B3A5C",
@@ -144,11 +145,14 @@ const PRODUCTS = [
 /* ═══════════════════════════════════════════
    NAVBAR — integrated with page routing
    ═══════════════════════════════════════════ */
-function Navbar({ page, setPage, scrolled }) {
+function Navbar({ scrolled }) {
   const [mob, setMob] = useState(false);
   const [statesOpen, setStatesOpen] = useState(false);
   const [mobStatesOpen, setMobStatesOpen] = useState(false);
   const statesRef = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname;
 
   useEffect(() => {
     const close = (e) => { if (statesRef.current && !statesRef.current.contains(e.target)) setStatesOpen(false); };
@@ -160,25 +164,20 @@ function Navbar({ page, setPage, scrolled }) {
     setMob(false);
     setStatesOpen(false);
     setMobStatesOpen(false);
-    if (target === "locations") {
-      setPage("locations");
+    // Page routes
+    const pageRoutes = { locations: "/locations", hawaii: "/hawaii", home: "/" };
+    if (pageRoutes[target]) {
+      navigate(pageRoutes[target]);
       return;
     }
-    if (target === "hawaii") {
-      setPage("hawaii");
-      return;
-    }
-    if (target === "home") {
-      setPage("home");
-      return;
-    }
-    if (page !== "home") {
-      setPage("home");
+    // Section scroll targets (home page sections)
+    if (currentPath === "/") {
+      document.getElementById(target)?.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate("/");
       setTimeout(() => {
         document.getElementById(target)?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
-    } else {
-      document.getElementById(target)?.scrollIntoView({ behavior: "smooth" });
+      }, 150);
     }
   };
 
@@ -192,10 +191,10 @@ function Navbar({ page, setPage, scrolled }) {
   ];
 
   const statePages = [
-    { label: "Hawaii", target: "hawaii" },
+    { label: "Hawaii", path: "/hawaii" },
   ];
 
-  const isStatePage = statePages.some(s => s.target === page);
+  const isStatePage = statePages.some(s => currentPath.startsWith(s.path));
   const navBtnStyle = (active) => ({
     background: "none", border: "none", cursor: "pointer", textDecoration: "none",
     color: active ? C.gold : C.muted,
@@ -205,18 +204,18 @@ function Navbar({ page, setPage, scrolled }) {
   return (
     <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, background: scrolled ? "rgba(10,22,40,0.97)" : "transparent", backdropFilter: scrolled ? "blur(12px)" : "none", borderBottom: scrolled ? `1px solid ${C.navyLight}` : "1px solid transparent", transition: "all 0.3s", padding: scrolled ? "12px 0" : "20px 0" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <button onClick={() => handleNav("home")} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
+        <Link to="/" style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
           <Shield s={30} />
           <div>
-            <div style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 18, fontWeight: 700, color: C.white, lineHeight: 1.1, textAlign: "left" }}>The Joy of Lending</div>
+            <div style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 18, fontWeight: 700, color: C.white, lineHeight: 1.1, textAlign: "left" }}>Joy VA Home Loan</div>
             <div style={{ fontSize: 10, color: C.gold, letterSpacing: 3, textTransform: "uppercase", fontFamily: "'DM Sans',sans-serif" }}>VA Home Loans</div>
           </div>
-        </button>
+        </Link>
         <div className="dNav" style={{ display: "flex", alignItems: "center", gap: 28 }}>
           {links.map(l => (
-            <button key={l.target} onClick={() => handleNav(l.target)} style={navBtnStyle(page === "locations" && l.target === "locations")}
+            <button key={l.target} onClick={() => handleNav(l.target)} style={navBtnStyle(currentPath.startsWith("/locations") && l.target === "locations")}
               onMouseEnter={e => e.target.style.color = C.gold}
-              onMouseLeave={e => e.target.style.color = (page === "locations" && l.target === "locations") ? C.gold : C.muted}
+              onMouseLeave={e => e.target.style.color = (currentPath.startsWith("/locations") && l.target === "locations") ? C.gold : C.muted}
             >{l.label}</button>
           ))}
           {/* Other States dropdown */}
@@ -230,10 +229,10 @@ function Navbar({ page, setPage, scrolled }) {
             {statesOpen && (
               <div style={{ position: "absolute", top: "calc(100% + 10px)", left: "50%", transform: "translateX(-50%)", background: C.navy, border: `1px solid ${C.navyLight}`, borderRadius: 8, padding: "6px 0", minWidth: 160, boxShadow: "0 8px 30px rgba(0,0,0,0.3)" }}>
                 {statePages.map(s => (
-                  <button key={s.target} onClick={() => handleNav(s.target)} style={{ display: "block", width: "100%", textAlign: "left", background: page === s.target ? `${C.gold}10` : "none", border: "none", cursor: "pointer", color: page === s.target ? C.gold : C.muted, fontSize: 14, fontFamily: "'DM Sans',sans-serif", padding: "10px 18px", transition: "all 0.15s" }}
+                  <Link key={s.path} to={s.path} onClick={() => { setStatesOpen(false); setMob(false); }} style={{ display: "block", textDecoration: "none", background: currentPath === s.path ? `${C.gold}10` : "none", color: currentPath === s.path ? C.gold : C.muted, fontSize: 14, fontFamily: "'DM Sans',sans-serif", padding: "10px 18px", transition: "all 0.15s" }}
                     onMouseEnter={e => { e.target.style.color = C.gold; e.target.style.background = `${C.gold}10`; }}
-                    onMouseLeave={e => { e.target.style.color = page === s.target ? C.gold : C.muted; e.target.style.background = page === s.target ? `${C.gold}10` : "none"; }}
-                  >{s.label}</button>
+                    onMouseLeave={e => { e.target.style.color = currentPath === s.path ? C.gold : C.muted; e.target.style.background = currentPath === s.path ? `${C.gold}10` : "none"; }}
+                  >{s.label}</Link>
                 ))}
               </div>
             )}
@@ -254,7 +253,7 @@ function Navbar({ page, setPage, scrolled }) {
           Other States <ChevDown s={16} c={isStatePage ? C.gold : C.muted} />
         </button>
         {mobStatesOpen && statePages.map(s => (
-          <button key={s.target} onClick={() => handleNav(s.target)} style={{ display: "block", width: "100%", textAlign: "left", background: "none", border: "none", cursor: "pointer", color: page === s.target ? C.gold : C.muted, fontSize: 15, fontFamily: "'DM Sans',sans-serif", padding: "10px 0 10px 20px", borderBottom: `1px solid ${C.navyMid}` }}>{s.label}</button>
+          <Link key={s.path} to={s.path} onClick={() => { setMob(false); setMobStatesOpen(false); }} style={{ display: "block", width: "100%", textAlign: "left", textDecoration: "none", color: currentPath === s.path ? C.gold : C.muted, fontSize: 15, fontFamily: "'DM Sans',sans-serif", padding: "10px 0 10px 20px", borderBottom: `1px solid ${C.navyMid}` }}>{s.label}</Link>
         ))}
         <button onClick={() => handleNav("contact")} style={{ display: "inline-block", marginTop: 14, padding: "12px 28px", background: C.red, color: C.white, borderRadius: 6, fontSize: 14, fontWeight: 600, fontFamily: "'DM Sans',sans-serif", border: "none", cursor: "pointer" }}>Get Started</button>
       </div>}
@@ -599,42 +598,37 @@ function Footer() {
 /* ═══════════════════════════════════════════
    LOCATIONS PAGE
    ═══════════════════════════════════════════ */
-function LocationsPage({ setPage }) {
-  const [currentCity, setCurrentCity] = useState(null);
-  const [expandedProduct, setExpandedProduct] = useState(null);
+function LocationsPage() {
   const cityKeys = Object.keys(CITIES);
 
-  useEffect(() => { window.scrollTo({ top: 0, behavior: "smooth" }); }, [currentCity]);
-
-  /* ─── City Selector ─── */
-  if (!currentCity) {
-    return (
-      <div>
-        <div style={{ background: `linear-gradient(160deg, ${C.navy} 0%, ${C.navyMid} 50%, ${C.navyLight} 100%)`, padding: "120px 24px 70px", position: "relative", overflow: "hidden" }}>
-          <StarField />
-          <div style={{ position: "relative", zIndex: 1, maxWidth: 900, margin: "0 auto", textAlign: "center" }}>
-            <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px", background: `${C.gold}12`, border: `1px solid ${C.gold}25`, borderRadius: 100, marginBottom: 20 }}>
-              <MapPin s={14} c={C.gold} />
-              <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: C.gold, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600 }}>Southern California Locations</span>
-            </div>
-            <h1 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: "clamp(30px,5vw,52px)", fontWeight: 700, color: C.white, lineHeight: 1.15, margin: "0 0 16px" }}>
-              VA Home Loans Across <span style={{ color: C.gold }}>Southern California</span>
-            </h1>
-            <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 18, color: C.muted, maxWidth: 600, margin: "0 auto", lineHeight: 1.7 }}>
-              Select your city to explore local VA home loan options, market insights, and how Tim can help you.
-            </p>
-            <GoldRule w={80} center />
+  return (
+    <div>
+      <div style={{ background: `linear-gradient(160deg, ${C.navy} 0%, ${C.navyMid} 50%, ${C.navyLight} 100%)`, padding: "120px 24px 70px", position: "relative", overflow: "hidden" }}>
+        <StarField />
+        <div style={{ position: "relative", zIndex: 1, maxWidth: 900, margin: "0 auto", textAlign: "center" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px", background: `${C.gold}12`, border: `1px solid ${C.gold}25`, borderRadius: 100, marginBottom: 20 }}>
+            <MapPin s={14} c={C.gold} />
+            <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: C.gold, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600 }}>Southern California Locations</span>
           </div>
-          <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, transparent, ${C.gold}, transparent)` }} />
+          <h1 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: "clamp(30px,5vw,52px)", fontWeight: 700, color: C.white, lineHeight: 1.15, margin: "0 0 16px" }}>
+            VA Home Loans Across <span style={{ color: C.gold }}>Southern California</span>
+          </h1>
+          <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 18, color: C.muted, maxWidth: 600, margin: "0 auto", lineHeight: 1.7 }}>
+            Select your city to explore local VA home loan options, market insights, and how Tim can help you.
+          </p>
+          <GoldRule w={80} center />
         </div>
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, transparent, ${C.gold}, transparent)` }} />
+      </div>
 
-        <div style={{ maxWidth: 1100, margin: "0 auto", padding: "60px 24px 80px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 24 }}>
-            {cityKeys.map((key, i) => {
-              const city = CITIES[key];
-              return (
-                <Reveal key={key} delay={i * 0.06}>
-                  <div onClick={() => setCurrentCity(key)} style={{ background: C.white, borderRadius: 14, padding: 28, cursor: "pointer", border: `1px solid ${C.gold}15`, transition: "all 0.3s", boxShadow: "0 2px 12px rgba(10,22,40,0.04)" }}
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "60px 24px 80px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 24 }}>
+          {cityKeys.map((key, i) => {
+            const city = CITIES[key];
+            return (
+              <Reveal key={key} delay={i * 0.06}>
+                <Link to={`/locations/${key}`} style={{ textDecoration: "none", display: "block" }}>
+                  <div style={{ background: C.white, borderRadius: 14, padding: 28, cursor: "pointer", border: `1px solid ${C.gold}15`, transition: "all 0.3s", boxShadow: "0 2px 12px rgba(10,22,40,0.04)" }}
                     onMouseEnter={e => { e.currentTarget.style.transform="translateY(-6px)"; e.currentTarget.style.boxShadow="0 12px 36px rgba(10,22,40,0.1)"; e.currentTarget.style.borderColor=`${C.gold}40`; }}
                     onMouseLeave={e => { e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="0 2px 12px rgba(10,22,40,0.04)"; e.currentTarget.style.borderColor=`${C.gold}15`; }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
@@ -650,19 +644,29 @@ function LocationsPage({ setPage }) {
                     </div>
                     <div style={{ display: "flex", alignItems: "center", gap: 6, fontFamily: "'DM Sans',sans-serif", fontSize: 13, fontWeight: 600, color: C.red }}>Explore VA Loans <Arrow s={14} c={C.red} /></div>
                   </div>
-                </Reveal>
-              );
-            })}
-          </div>
+                </Link>
+              </Reveal>
+            );
+          })}
         </div>
-        <Footer />
       </div>
-    );
+      <Footer />
+    </div>
+  );
+}
+
+function CityDetailPage() {
+  const { cityId } = useParams();
+  const navigate = useNavigate();
+  const [expandedProduct, setExpandedProduct] = useState(null);
+  const cityKeys = Object.keys(CITIES);
+  const city = CITIES[cityId];
+
+  if (!city) {
+    return <div style={{ padding: "200px 24px 100px", textAlign: "center" }}><h1 style={{ fontFamily: "'Playfair Display',Georgia,serif", color: C.navy }}>City not found</h1><Link to="/locations" style={{ color: C.red, fontFamily: "'DM Sans',sans-serif" }}>View all locations</Link></div>;
   }
 
-  /* ─── City Detail ─── */
-  const city = CITIES[currentCity];
-  const cityIdx = cityKeys.indexOf(currentCity);
+  const cityIdx = cityKeys.indexOf(cityId);
   const prevCity = cityIdx > 0 ? cityKeys[cityIdx - 1] : null;
   const nextCity = cityIdx < cityKeys.length - 1 ? cityKeys[cityIdx + 1] : null;
 
@@ -672,9 +676,9 @@ function LocationsPage({ setPage }) {
       <section style={{ background: `linear-gradient(160deg, ${C.navy} 0%, ${C.navyMid} 50%, ${C.navyLight} 100%)`, padding: "120px 24px 70px", position: "relative", overflow: "hidden" }}>
         <StarField />
         <div style={{ position: "relative", zIndex: 1, maxWidth: 1100, margin: "0 auto" }}>
-          <button onClick={() => setCurrentCity(null)} style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 6, marginBottom: 24, fontFamily: "'DM Sans',sans-serif", fontSize: 13, color: C.gold, padding: 0 }}>
+          <Link to="/locations" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 6, marginBottom: 24, fontFamily: "'DM Sans',sans-serif", fontSize: 13, color: C.gold }}>
             <Arrow s={14} c={C.gold} dir="left" /> All Locations
-          </button>
+          </Link>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px", background: `${C.gold}12`, border: `1px solid ${C.gold}25`, borderRadius: 100, marginBottom: 20 }}>
             <MapPin s={14} c={C.gold} />
             <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: C.gold, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600 }}>{city.county} · {city.tagline}</span>
@@ -799,19 +803,19 @@ function LocationsPage({ setPage }) {
       <section style={{ background: C.cream, padding: "48px 24px" }}>
         <div style={{ maxWidth: 1100, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
           {prevCity ? (
-            <button onClick={() => { setCurrentCity(prevCity); setExpandedProduct(null); }} style={{ background: "none", border: `1px solid ${C.gold}25`, borderRadius: 8, padding: "12px 20px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, transition: "all 0.2s" }}
+            <Link to={`/locations/${prevCity}`} style={{ textDecoration: "none", border: `1px solid ${C.gold}25`, borderRadius: 8, padding: "12px 20px", display: "flex", alignItems: "center", gap: 8, transition: "all 0.2s" }}
               onMouseEnter={e=>e.currentTarget.style.borderColor=C.gold} onMouseLeave={e=>e.currentTarget.style.borderColor=`${C.gold}25`}>
               <Arrow s={14} c={C.navy} dir="left" /><span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 14, fontWeight: 600, color: C.navy }}>{CITIES[prevCity].name}</span>
-            </button>
+            </Link>
           ) : <div />}
-          <button onClick={() => { setCurrentCity(null); setExpandedProduct(null); }} style={{ background: "none", border: "none", cursor: "pointer", fontFamily: "'DM Sans',sans-serif", fontSize: 14, color: C.muted, display: "flex", alignItems: "center", gap: 6 }}>
+          <Link to="/locations" style={{ textDecoration: "none", fontFamily: "'DM Sans',sans-serif", fontSize: 14, color: C.muted, display: "flex", alignItems: "center", gap: 6 }}>
             <MapPin s={14} c={C.muted} /> View All Cities
-          </button>
+          </Link>
           {nextCity ? (
-            <button onClick={() => { setCurrentCity(nextCity); setExpandedProduct(null); }} style={{ background: "none", border: `1px solid ${C.gold}25`, borderRadius: 8, padding: "12px 20px", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, transition: "all 0.2s" }}
+            <Link to={`/locations/${nextCity}`} style={{ textDecoration: "none", border: `1px solid ${C.gold}25`, borderRadius: 8, padding: "12px 20px", display: "flex", alignItems: "center", gap: 8, transition: "all 0.2s" }}
               onMouseEnter={e=>e.currentTarget.style.borderColor=C.gold} onMouseLeave={e=>e.currentTarget.style.borderColor=`${C.gold}25`}>
               <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 14, fontWeight: 600, color: C.navy }}>{CITIES[nextCity].name}</span><Arrow s={14} c={C.navy} />
-            </button>
+            </Link>
           ) : <div />}
         </div>
       </section>
@@ -830,7 +834,7 @@ const HAWAII_ISLANDS = [
   { name: "Kauai", tagline: "The Garden Isle", population: "73,000+", medianHome: "$950,000", highlights: "Known for breathtaking natural beauty. The Pacific Missile Range Facility at Barking Sands supports a local military community. Small-town feel with strong community bonds." },
 ];
 
-function HawaiiPage({ setPage }) {
+function HawaiiPage() {
   const [expandedProduct, setExpandedProduct] = useState(null);
 
   return (
@@ -984,11 +988,43 @@ function HawaiiPage({ setPage }) {
 }
 
 /* ═══════════════════════════════════════════
-   MAIN APP — page router
+   SCROLL TO TOP ON ROUTE CHANGE
+   ═══════════════════════════════════════════ */
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [pathname]);
+  return null;
+}
+
+function HomePage() {
+  return (
+    <>
+      <Hero />
+      <Divider from={C.navyLight} to={C.cream} />
+      <About />
+      <Divider from={C.cream} to={C.navy} flip />
+      <MeetTim />
+      <Divider from={C.navy} to={C.cream} />
+      <HomeProducts />
+      <Divider from={C.cream} to={C.navy} flip />
+      <WhyUs />
+      <Divider from={C.navy} to={C.cream} />
+      <Contact />
+      <Divider from={C.cream} to={C.navy} flip />
+      <Footer />
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════
+   MAIN APP — URL router
    ═══════════════════════════════════════════ */
 export default function App() {
-  const [page, setPage] = useState("home");
   const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
+  const isNotHome = location.pathname !== "/";
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 40);
@@ -996,39 +1032,17 @@ export default function App() {
     return () => window.removeEventListener("scroll", h);
   }, []);
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [page]);
-
   return (
     <div style={{ margin: 0, padding: 0, background: C.cream, minHeight: "100vh" }}>
-      <Navbar page={page} setPage={setPage} scrolled={scrolled || page === "locations" || page === "hawaii"} />
+      <ScrollToTop />
+      <Navbar scrolled={scrolled || isNotHome} />
 
-      {page === "home" && (
-        <>
-          <Hero />
-          <Divider from={C.navyLight} to={C.cream} />
-          <About />
-          <Divider from={C.cream} to={C.navy} flip />
-          <MeetTim />
-          <Divider from={C.navy} to={C.cream} />
-          <HomeProducts />
-          <Divider from={C.cream} to={C.navy} flip />
-          <WhyUs />
-          <Divider from={C.navy} to={C.cream} />
-          <Contact />
-          <Divider from={C.cream} to={C.navy} flip />
-          <Footer />
-        </>
-      )}
-
-      {page === "locations" && (
-        <LocationsPage setPage={setPage} />
-      )}
-
-      {page === "hawaii" && (
-        <HawaiiPage setPage={setPage} />
-      )}
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/locations" element={<LocationsPage />} />
+        <Route path="/locations/:cityId" element={<CityDetailPage />} />
+        <Route path="/hawaii" element={<HawaiiPage />} />
+      </Routes>
     </div>
   );
 }
