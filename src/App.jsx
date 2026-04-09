@@ -461,9 +461,10 @@ function Contact() {
             <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 17, color: "#5A6B82", lineHeight: 1.8, margin: "20px 0 36px" }}>Tim and our dedicated team are here to guide you every step of the way.</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
               {[
-                [<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.gold} strokeWidth="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>, "(555) 123-4567"],
+                [<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.gold} strokeWidth="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>, "(951) 847-5578"],
                 [<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.gold} strokeWidth="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>, "tim@joyoflending.com"],
-                [<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.gold} strokeWidth="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>, "Serving All of California"],
+                [<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.gold} strokeWidth="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>, "3100 Airway Ave #131, Costa Mesa, CA 92626"],
+                [<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={C.gold} strokeWidth="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>, "Open 24 Hours a Day, 7 Days a Week"],
               ].map(([icon, text], i) => (
                 <div key={i} style={{ display: "flex", alignItems: "center", gap: 14 }}>
                   <div style={{ width: 44, height: 44, borderRadius: "50%", background: `${C.navy}08`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{icon}</div>
@@ -500,14 +501,48 @@ function Contact() {
 }
 
 function Footer() {
+  const footerLabel = { fontFamily: "'DM Sans',sans-serif", fontSize: 13, color: C.muted, lineHeight: 1.6 };
+  const footerIcon = { width: 36, height: 36, borderRadius: "50%", background: `${C.navyLight}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 };
   return (
-    <footer style={{ background: C.navy, padding: "48px 24px 32px", borderTop: `1px solid ${C.navyLight}` }}>
+    <footer style={{ background: C.navy, padding: "60px 24px 32px", borderTop: `1px solid ${C.navyLight}` }}>
       <div style={{ maxWidth: 1100, margin: "0 auto" }}>
-        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 24 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <Shield s={24} />
-            <div><div style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 16, fontWeight: 700, color: C.white }}>The Joy of Lending</div><div style={{ fontSize: 10, color: C.gold, letterSpacing: 2, textTransform: "uppercase", fontFamily: "'DM Sans',sans-serif" }}>VA Home Loans</div></div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 40, marginBottom: 40 }}>
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+              <Shield s={24} />
+              <div><div style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 16, fontWeight: 700, color: C.white }}>The Joy of Lending</div><div style={{ fontSize: 10, color: C.gold, letterSpacing: 2, textTransform: "uppercase", fontFamily: "'DM Sans',sans-serif" }}>VA Home Loans</div></div>
+            </div>
+            <p style={{ ...footerLabel, maxWidth: 280 }}>Proudly serving veterans, active-duty service members, and eligible surviving spouses across California.</p>
           </div>
+          <div>
+            <h4 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 15, fontWeight: 700, color: C.white, margin: "0 0 16px" }}>Contact Info</h4>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={footerIcon}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.gold} strokeWidth="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></div>
+                <span style={footerLabel}>(951) 847-5578</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={footerIcon}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.gold} strokeWidth="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+                <span style={footerLabel}>tim@joyoflending.com</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <h4 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 15, fontWeight: 700, color: C.white, margin: "0 0 16px" }}>Address</h4>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+              <div style={footerIcon}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.gold} strokeWidth="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+              <span style={footerLabel}>3100 Airway Ave #131<br/>Costa Mesa, CA 92626</span>
+            </div>
+          </div>
+          <div>
+            <h4 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 15, fontWeight: 700, color: C.white, margin: "0 0 16px" }}>Hours</h4>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={footerIcon}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={C.gold} strokeWidth="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg></div>
+              <span style={footerLabel}>24 Hours a Day<br/>7 Days a Week</span>
+            </div>
+          </div>
+        </div>
+        <div style={{ borderTop: `1px solid ${C.navyLight}`, paddingTop: 24, textAlign: "center" }}>
           <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: C.muted, margin: 0 }}>© 2026 The Joy of Lending. All rights reserved. NMLS# 000000</p>
         </div>
       </div>
