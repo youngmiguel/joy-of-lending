@@ -146,18 +146,32 @@ const PRODUCTS = [
    ═══════════════════════════════════════════ */
 function Navbar({ page, setPage, scrolled }) {
   const [mob, setMob] = useState(false);
+  const [statesOpen, setStatesOpen] = useState(false);
+  const [mobStatesOpen, setMobStatesOpen] = useState(false);
+  const statesRef = useRef(null);
+
+  useEffect(() => {
+    const close = (e) => { if (statesRef.current && !statesRef.current.contains(e.target)) setStatesOpen(false); };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, []);
 
   const handleNav = (target) => {
     setMob(false);
+    setStatesOpen(false);
+    setMobStatesOpen(false);
     if (target === "locations") {
       setPage("locations");
+      return;
+    }
+    if (target === "hawaii") {
+      setPage("hawaii");
       return;
     }
     if (target === "home") {
       setPage("home");
       return;
     }
-    // If we're on locations page, go home first then scroll
     if (page !== "home") {
       setPage("home");
       setTimeout(() => {
@@ -177,6 +191,17 @@ function Navbar({ page, setPage, scrolled }) {
     { label: "Contact", target: "contact" },
   ];
 
+  const statePages = [
+    { label: "Hawaii", target: "hawaii" },
+  ];
+
+  const isStatePage = statePages.some(s => s.target === page);
+  const navBtnStyle = (active) => ({
+    background: "none", border: "none", cursor: "pointer", textDecoration: "none",
+    color: active ? C.gold : C.muted,
+    fontSize: 14, fontFamily: "'DM Sans',sans-serif", letterSpacing: 0.5, transition: "color 0.2s", padding: 0,
+  });
+
   return (
     <nav style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 1000, background: scrolled ? "rgba(10,22,40,0.97)" : "transparent", backdropFilter: scrolled ? "blur(12px)" : "none", borderBottom: scrolled ? `1px solid ${C.navyLight}` : "1px solid transparent", transition: "all 0.3s", padding: scrolled ? "12px 0" : "20px 0" }}>
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
@@ -189,15 +214,30 @@ function Navbar({ page, setPage, scrolled }) {
         </button>
         <div className="dNav" style={{ display: "flex", alignItems: "center", gap: 28 }}>
           {links.map(l => (
-            <button key={l.target} onClick={() => handleNav(l.target)} style={{
-              background: "none", border: "none", cursor: "pointer", textDecoration: "none",
-              color: (page === "locations" && l.target === "locations") ? C.gold : C.muted,
-              fontSize: 14, fontFamily: "'DM Sans',sans-serif", letterSpacing: 0.5, transition: "color 0.2s", padding: 0,
-            }}
+            <button key={l.target} onClick={() => handleNav(l.target)} style={navBtnStyle(page === "locations" && l.target === "locations")}
               onMouseEnter={e => e.target.style.color = C.gold}
               onMouseLeave={e => e.target.style.color = (page === "locations" && l.target === "locations") ? C.gold : C.muted}
             >{l.label}</button>
           ))}
+          {/* Other States dropdown */}
+          <div ref={statesRef} style={{ position: "relative" }}>
+            <button onClick={() => setStatesOpen(!statesOpen)} style={{ ...navBtnStyle(isStatePage), display: "flex", alignItems: "center", gap: 4 }}
+              onMouseEnter={e => e.currentTarget.querySelector('span').style.color = C.gold}
+              onMouseLeave={e => e.currentTarget.querySelector('span').style.color = isStatePage ? C.gold : C.muted}>
+              <span style={{ color: isStatePage ? C.gold : C.muted, transition: "color 0.2s" }}>Other States</span>
+              <ChevDown s={14} c={isStatePage ? C.gold : C.muted} />
+            </button>
+            {statesOpen && (
+              <div style={{ position: "absolute", top: "calc(100% + 10px)", left: "50%", transform: "translateX(-50%)", background: C.navy, border: `1px solid ${C.navyLight}`, borderRadius: 8, padding: "6px 0", minWidth: 160, boxShadow: "0 8px 30px rgba(0,0,0,0.3)" }}>
+                {statePages.map(s => (
+                  <button key={s.target} onClick={() => handleNav(s.target)} style={{ display: "block", width: "100%", textAlign: "left", background: page === s.target ? `${C.gold}10` : "none", border: "none", cursor: "pointer", color: page === s.target ? C.gold : C.muted, fontSize: 14, fontFamily: "'DM Sans',sans-serif", padding: "10px 18px", transition: "all 0.15s" }}
+                    onMouseEnter={e => { e.target.style.color = C.gold; e.target.style.background = `${C.gold}10`; }}
+                    onMouseLeave={e => { e.target.style.color = page === s.target ? C.gold : C.muted; e.target.style.background = page === s.target ? `${C.gold}10` : "none"; }}
+                  >{s.label}</button>
+                ))}
+              </div>
+            )}
+          </div>
           <button onClick={() => handleNav("contact")} style={{ textDecoration: "none", padding: "10px 22px", background: C.red, color: C.white, borderRadius: 6, fontSize: 13, fontWeight: 600, fontFamily: "'DM Sans',sans-serif", transition: "background 0.2s", border: "none", cursor: "pointer" }}
             onMouseEnter={e => e.target.style.background = C.redLight}
             onMouseLeave={e => e.target.style.background = C.red}>
@@ -210,6 +250,12 @@ function Navbar({ page, setPage, scrolled }) {
       </div>
       {mob && <div className="mMenu" style={{ background: C.navy, padding: "16px 24px", borderTop: `1px solid ${C.navyLight}` }}>
         {links.map(l => <button key={l.target} onClick={() => handleNav(l.target)} style={{ display: "block", width: "100%", textAlign: "left", background: "none", border: "none", cursor: "pointer", color: C.muted, fontSize: 16, fontFamily: "'DM Sans',sans-serif", padding: "12px 0", borderBottom: `1px solid ${C.navyMid}` }}>{l.label}</button>)}
+        <button onClick={() => setMobStatesOpen(!mobStatesOpen)} style={{ display: "flex", width: "100%", alignItems: "center", justifyContent: "space-between", textAlign: "left", background: "none", border: "none", cursor: "pointer", color: isStatePage ? C.gold : C.muted, fontSize: 16, fontFamily: "'DM Sans',sans-serif", padding: "12px 0", borderBottom: `1px solid ${C.navyMid}` }}>
+          Other States <ChevDown s={16} c={isStatePage ? C.gold : C.muted} />
+        </button>
+        {mobStatesOpen && statePages.map(s => (
+          <button key={s.target} onClick={() => handleNav(s.target)} style={{ display: "block", width: "100%", textAlign: "left", background: "none", border: "none", cursor: "pointer", color: page === s.target ? C.gold : C.muted, fontSize: 15, fontFamily: "'DM Sans',sans-serif", padding: "10px 0 10px 20px", borderBottom: `1px solid ${C.navyMid}` }}>{s.label}</button>
+        ))}
         <button onClick={() => handleNav("contact")} style={{ display: "inline-block", marginTop: 14, padding: "12px 28px", background: C.red, color: C.white, borderRadius: 6, fontSize: 14, fontWeight: 600, fontFamily: "'DM Sans',sans-serif", border: "none", cursor: "pointer" }}>Get Started</button>
       </div>}
     </nav>
@@ -738,9 +784,9 @@ function LocationsPage({ setPage }) {
             <h2 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: "clamp(26px,4vw,42px)", fontWeight: 700, color: C.white, lineHeight: 1.2, margin: "0 0 16px" }}>Ready to Buy a Home in {city.name}?</h2>
             <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 17, color: C.muted, lineHeight: 1.7, margin: "0 0 32px" }}>Get expert VA loan guidance tailored to the {city.name} market.</p>
             <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 16 }}>
-              <a href="tel:5551234567" style={{ textDecoration: "none", padding: "16px 36px", background: C.red, color: C.white, borderRadius: 8, fontSize: 16, fontWeight: 600, fontFamily: "'DM Sans',sans-serif", boxShadow: `0 4px 20px ${C.red}40`, transition: "all 0.25s" }}
+              <a href="tel:9518475578" style={{ textDecoration: "none", padding: "16px 36px", background: C.red, color: C.white, borderRadius: 8, fontSize: 16, fontWeight: 600, fontFamily: "'DM Sans',sans-serif", boxShadow: `0 4px 20px ${C.red}40`, transition: "all 0.25s" }}
                 onMouseEnter={e=>{e.currentTarget.style.background=C.redLight;e.currentTarget.style.transform="translateY(-2px)";}}
-                onMouseLeave={e=>{e.currentTarget.style.background=C.red;e.currentTarget.style.transform="translateY(0)";}}>Call Tim: (555) 123-4567</a>
+                onMouseLeave={e=>{e.currentTarget.style.background=C.red;e.currentTarget.style.transform="translateY(0)";}}>Call Tim: (951) 847-5578</a>
               <a href="mailto:tim@joyoflending.com" style={{ textDecoration: "none", padding: "16px 36px", background: "transparent", color: C.gold, borderRadius: 8, fontSize: 16, fontWeight: 600, fontFamily: "'DM Sans',sans-serif", border: `1px solid ${C.gold}40`, transition: "all 0.25s" }}
                 onMouseEnter={e=>{e.currentTarget.style.borderColor=C.gold;e.currentTarget.style.background=`${C.gold}10`;}}
                 onMouseLeave={e=>{e.currentTarget.style.borderColor=`${C.gold}40`;e.currentTarget.style.background="transparent";}}>Email Tim</a>
@@ -775,6 +821,169 @@ function LocationsPage({ setPage }) {
 }
 
 /* ═══════════════════════════════════════════
+   HAWAII PAGE
+   ═══════════════════════════════════════════ */
+const HAWAII_ISLANDS = [
+  { name: "Oahu", tagline: "The Gathering Place", population: "1,000,000+", medianHome: "$850,000", highlights: "Home to Honolulu, Pearl Harbor, Joint Base Pearl Harbor-Hickam, Schofield Barracks, and Marine Corps Base Hawaii. The largest veteran population in the state." },
+  { name: "Maui", tagline: "The Valley Isle", population: "164,000+", medianHome: "$1,050,000", highlights: "Stunning beaches and lush valleys. Growing veteran community with proximity to outdoor recreation and a relaxed island lifestyle ideal for transitioning service members." },
+  { name: "Big Island (Hawaii)", tagline: "The Orchid Isle", population: "200,000+", medianHome: "$520,000", highlights: "The most affordable island for homebuyers. Pohakuloa Training Area is nearby. Diverse landscapes from volcanic terrain to tropical rainforests." },
+  { name: "Kauai", tagline: "The Garden Isle", population: "73,000+", medianHome: "$950,000", highlights: "Known for breathtaking natural beauty. The Pacific Missile Range Facility at Barking Sands supports a local military community. Small-town feel with strong community bonds." },
+];
+
+function HawaiiPage({ setPage }) {
+  const [expandedProduct, setExpandedProduct] = useState(null);
+
+  return (
+    <div>
+      {/* Hero */}
+      <section style={{ background: `linear-gradient(160deg, ${C.navy} 0%, ${C.navyMid} 50%, ${C.navyLight} 100%)`, padding: "120px 24px 80px", position: "relative", overflow: "hidden" }}>
+        <StarField />
+        <div style={{ position: "relative", zIndex: 1, maxWidth: 900, margin: "0 auto", textAlign: "center" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "6px 14px", background: `${C.gold}12`, border: `1px solid ${C.gold}25`, borderRadius: 100, marginBottom: 20 }}>
+            <Shield s={14} c={C.gold} />
+            <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: C.gold, letterSpacing: 2, textTransform: "uppercase", fontWeight: 600 }}>Now Serving Hawaii</span>
+          </div>
+          <h1 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: "clamp(30px,5vw,54px)", fontWeight: 700, color: C.white, lineHeight: 1.15, margin: "0 0 16px" }}>
+            VA Home Loans Across the <span style={{ color: C.gold }}>Aloha State</span>
+          </h1>
+          <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 18, color: C.muted, maxWidth: 620, margin: "0 auto", lineHeight: 1.7 }}>
+            Tim and our team bring the same dedicated VA loan expertise to Hawaii's veterans, active-duty service members, and military families across every island.
+          </p>
+          <GoldRule w={80} center />
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 32, marginTop: 32 }}>
+            {[["4 Islands", "SERVED"], ["$0 Down", "VA BENEFIT"], ["$0 PMI", "VA BENEFIT"]].map(([v, l]) => (
+              <div key={l+v}><div style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 28, fontWeight: 700, color: C.gold }}>{v}</div><div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 11, color: C.muted, letterSpacing: 1, textTransform: "uppercase", marginTop: 2 }}>{l}</div></div>
+            ))}
+          </div>
+        </div>
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, background: `linear-gradient(90deg, transparent, ${C.gold}, transparent)` }} />
+      </section>
+
+      {/* Why Hawaii Veterans Need VA Loans */}
+      <section style={{ padding: "80px 24px", background: C.cream }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <Reveal>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 48 }}>
+              <div>
+                <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: C.red, letterSpacing: 3, textTransform: "uppercase", fontWeight: 700 }}>Why VA Loans in Hawaii</span>
+                <h2 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: "clamp(24px,3.5vw,38px)", fontWeight: 700, color: C.navy, margin: "10px 0 0", lineHeight: 1.2 }}>Your VA Benefit Goes Further in Hawaii</h2>
+                <GoldRule />
+                <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 16, color: C.navyMid, lineHeight: 1.8, margin: "16px 0" }}>
+                  Hawaii is one of the most expensive housing markets in the nation, making VA loan benefits especially valuable here. With zero down payment and no PMI, veterans can save tens of thousands compared to conventional financing.
+                </p>
+                <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 16, color: C.navyMid, lineHeight: 1.8, margin: "16px 0" }}>
+                  Hawaii also has higher VA loan limits in many counties, allowing you to finance more expensive island properties while still taking full advantage of your earned benefits.
+                </p>
+              </div>
+              <div>
+                <div style={{ background: C.white, borderRadius: 14, padding: 28, border: `1px solid ${C.gold}15` }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}><Shield s={22} c={C.red} /><h3 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 18, fontWeight: 700, color: C.navy, margin: 0 }}>Hawaii's Military Community</h3></div>
+                  <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 15, color: C.navyMid, lineHeight: 1.8, margin: "0 0 16px" }}>
+                    Hawaii is home to one of the largest active-duty military populations in the country. With major installations including Joint Base Pearl Harbor-Hickam, Schofield Barracks, Marine Corps Base Hawaii, and Camp H.M. Smith, the islands have a deep and proud connection to military service.
+                  </p>
+                  <div style={{ padding: "14px 18px", background: `${C.gold}08`, borderRadius: 10, border: `1px solid ${C.gold}15` }}>
+                    <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: C.muted, textTransform: "uppercase", letterSpacing: 1 }}>Major Military Installations</span>
+                    <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 14, color: C.navy, fontWeight: 500, marginTop: 4 }}>Joint Base Pearl Harbor-Hickam, Schofield Barracks, Marine Corps Base Hawaii, Camp H.M. Smith, Fort Shafter, Pacific Missile Range Facility</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* Islands */}
+      <section style={{ background: C.navy, padding: "80px 24px", position: "relative", overflow: "hidden" }}>
+        <StarField />
+        <div style={{ maxWidth: 1100, margin: "0 auto", position: "relative", zIndex: 1 }}>
+          <Reveal>
+            <div style={{ textAlign: "center", marginBottom: 48 }}>
+              <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: C.red, letterSpacing: 3, textTransform: "uppercase", fontWeight: 700 }}>Islands We Serve</span>
+              <h2 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: "clamp(24px,3.5vw,38px)", fontWeight: 700, color: C.white, margin: "10px 0 0", lineHeight: 1.2 }}>Serving Veterans Across Hawaii</h2>
+              <GoldRule w={80} center />
+            </div>
+          </Reveal>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 24 }}>
+            {HAWAII_ISLANDS.map((island, i) => (
+              <Reveal key={island.name} delay={i * 0.08}>
+                <div style={{ background: `${C.gold}08`, borderRadius: 14, padding: 28, border: `1px solid ${C.gold}15`, transition: "all 0.3s" }}
+                  onMouseEnter={e => { e.currentTarget.style.transform="translateY(-6px)"; e.currentTarget.style.boxShadow="0 12px 36px rgba(10,22,40,0.2)"; e.currentTarget.style.borderColor=`${C.gold}40`; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="none"; e.currentTarget.style.borderColor=`${C.gold}15`; }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+                    <div style={{ width: 40, height: 40, borderRadius: 10, background: `${C.gold}15`, display: "flex", alignItems: "center", justifyContent: "center" }}><MapPin s={20} c={C.gold} /></div>
+                    <div>
+                      <h3 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 20, fontWeight: 700, color: C.white, margin: 0 }}>{island.name}</h3>
+                      <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: C.muted, fontStyle: "italic" }}>{island.tagline}</span>
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: 20, marginBottom: 14 }}>
+                    <div><span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: 1 }}>Median Home</span><div style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 18, fontWeight: 700, color: C.gold }}>{island.medianHome}</div></div>
+                    <div><span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 11, color: C.muted, textTransform: "uppercase", letterSpacing: 1 }}>Pop.</span><div style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 18, fontWeight: 700, color: C.white }}>{island.population}</div></div>
+                  </div>
+                  <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 13, color: C.muted, lineHeight: 1.7, margin: 0 }}>{island.highlights}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* VA Products */}
+      <section style={{ padding: "80px 24px", background: C.cream }}>
+        <div style={{ maxWidth: 1100, margin: "0 auto" }}>
+          <Reveal><div style={{ textAlign: "center", marginBottom: 48 }}>
+            <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: C.red, letterSpacing: 3, textTransform: "uppercase", fontWeight: 700 }}>VA Loan Products</span>
+            <h2 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: "clamp(24px,3.5vw,38px)", fontWeight: 700, color: C.navy, margin: "10px 0 0", lineHeight: 1.2 }}>VA Loan Options for Hawaii</h2>
+            <GoldRule w={80} center />
+          </div></Reveal>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 20 }}>
+            {PRODUCTS.map((p, i) => {
+              const open = expandedProduct === p.id;
+              return (
+                <Reveal key={p.id} delay={i * 0.08}>
+                  <div onClick={() => setExpandedProduct(open ? null : p.id)} style={{ background: open ? C.navy : C.white, borderRadius: 14, padding: 26, cursor: "pointer", border: `1px solid ${open ? C.gold+"35" : C.gold+"12"}`, transition: "all 0.3s", boxShadow: open ? "0 10px 36px rgba(10,22,40,0.12)" : "0 2px 10px rgba(10,22,40,0.03)", display: "flex", flexDirection: "column", minHeight: 180 }}
+                    onMouseEnter={e => { if(!open) e.currentTarget.style.transform="translateY(-4px)"; }}
+                    onMouseLeave={e => { if(!open) e.currentTarget.style.transform="translateY(0)"; }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+                      <div style={{ width: 50, height: 50, borderRadius: 10, background: open ? `${C.gold}15` : `${C.navy}06`, display: "flex", alignItems: "center", justifyContent: "center" }}><ProductIcon type={p.icon} s={26} c={open ? C.gold : C.navy} /></div>
+                    </div>
+                    <h3 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 18, fontWeight: 700, color: open ? C.white : C.navy, margin: "0 0 8px", transition: "color 0.3s" }}>{p.title}</h3>
+                    <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 14, color: open ? C.muted : "#5A6B82", lineHeight: 1.65, margin: 0 }}>{open ? p.detail : p.brief}</p>
+                    {open && <div style={{ marginTop: "auto", paddingTop: 16, fontFamily: "'DM Sans',sans-serif", fontSize: 13, fontWeight: 600, color: C.gold }}>Talk to Tim about this →</div>}
+                  </div>
+                </Reveal>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section style={{ background: C.navy, padding: "80px 24px", position: "relative", overflow: "hidden" }}>
+        <StarField />
+        <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center", position: "relative", zIndex: 1 }}>
+          <Reveal>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 20 }}>{[0,1,2].map(i=><Star key={i} s={18}/>)}</div>
+            <h2 style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: "clamp(26px,4vw,42px)", fontWeight: 700, color: C.white, lineHeight: 1.2, margin: "0 0 16px" }}>Ready to Buy a Home in Hawaii?</h2>
+            <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 17, color: C.muted, lineHeight: 1.7, margin: "0 0 32px" }}>Get expert VA loan guidance tailored to Hawaii's unique market.</p>
+            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 16 }}>
+              <a href="tel:9518475578" style={{ textDecoration: "none", padding: "16px 36px", background: C.red, color: C.white, borderRadius: 8, fontSize: 16, fontWeight: 600, fontFamily: "'DM Sans',sans-serif", boxShadow: `0 4px 20px ${C.red}40`, transition: "all 0.25s" }}
+                onMouseEnter={e=>{e.currentTarget.style.background=C.redLight;e.currentTarget.style.transform="translateY(-2px)";}}
+                onMouseLeave={e=>{e.currentTarget.style.background=C.red;e.currentTarget.style.transform="translateY(0)";}}>Call Tim: (951) 847-5578</a>
+              <a href="mailto:tim@joyoflending.com" style={{ textDecoration: "none", padding: "16px 36px", background: "transparent", color: C.gold, borderRadius: 8, fontSize: 16, fontWeight: 600, fontFamily: "'DM Sans',sans-serif", border: `1px solid ${C.gold}40`, transition: "all 0.25s" }}
+                onMouseEnter={e=>{e.currentTarget.style.borderColor=C.gold;e.currentTarget.style.background=`${C.gold}10`;}}
+                onMouseLeave={e=>{e.currentTarget.style.borderColor=`${C.gold}40`;e.currentTarget.style.background="transparent";}}>Email Tim</a>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      <Footer />
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════
    MAIN APP — page router
    ═══════════════════════════════════════════ */
 export default function App() {
@@ -793,7 +1002,7 @@ export default function App() {
 
   return (
     <div style={{ margin: 0, padding: 0, background: C.cream, minHeight: "100vh" }}>
-      <Navbar page={page} setPage={setPage} scrolled={scrolled || page === "locations"} />
+      <Navbar page={page} setPage={setPage} scrolled={scrolled || page === "locations" || page === "hawaii"} />
 
       {page === "home" && (
         <>
@@ -815,6 +1024,10 @@ export default function App() {
 
       {page === "locations" && (
         <LocationsPage setPage={setPage} />
+      )}
+
+      {page === "hawaii" && (
+        <HawaiiPage setPage={setPage} />
       )}
     </div>
   );
