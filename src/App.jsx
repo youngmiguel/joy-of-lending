@@ -207,7 +207,7 @@ function Navbar({ scrolled }) {
         <Link to="/" style={{ background: "none", border: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}>
           <Shield s={30} />
           <div>
-            <div style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 18, fontWeight: 700, color: C.white, lineHeight: 1.1, textAlign: "left" }}>Joy VA Home Loan</div>
+            <div style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 18, fontWeight: 700, color: C.white, lineHeight: 1.1, textAlign: "left" }}>Joy VA Home Loans</div>
             <div style={{ fontSize: 10, color: C.gold, letterSpacing: 3, textTransform: "uppercase", fontFamily: "'DM Sans',sans-serif" }}>VA Home Loans</div>
           </div>
         </Link>
