@@ -208,7 +208,6 @@ function Navbar({ scrolled }) {
           <Shield s={30} />
           <div>
             <div style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 18, fontWeight: 700, color: C.white, lineHeight: 1.1, textAlign: "left" }}>Joy VA Home Loans</div>
-            <div style={{ fontSize: 10, color: C.gold, letterSpacing: 3, textTransform: "uppercase", fontFamily: "'DM Sans',sans-serif" }}>VA Home Loans</div>
           </div>
         </Link>
         <div className="dNav" style={{ display: "flex", alignItems: "center", gap: 28 }}>
@@ -555,7 +554,7 @@ function Footer() {
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
               <Shield s={24} />
-              <div><div style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 16, fontWeight: 700, color: C.white }}>The Joy of Lending</div><div style={{ fontSize: 10, color: C.gold, letterSpacing: 2, textTransform: "uppercase", fontFamily: "'DM Sans',sans-serif" }}>VA Home Loans</div></div>
+              <div><div style={{ fontFamily: "'Playfair Display',Georgia,serif", fontSize: 16, fontWeight: 700, color: C.white }}>Joy VA Home Loans</div></div>
             </div>
             <p style={{ ...footerLabel, maxWidth: 280 }}>Proudly serving veterans, active-duty service members, and eligible surviving spouses across California.</p>
           </div>
@@ -588,7 +587,7 @@ function Footer() {
           </div>
         </div>
         <div style={{ borderTop: `1px solid ${C.navyLight}`, paddingTop: 24, textAlign: "center" }}>
-          <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: C.muted, margin: 0 }}>© 2026 The Joy of Lending. All rights reserved. NMLS #1624602</p>
+          <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: C.muted, margin: 0 }}>© 2026 Joy VA Home Loans. All rights reserved. NMLS #1624602</p>
         </div>
       </div>
     </footer>
